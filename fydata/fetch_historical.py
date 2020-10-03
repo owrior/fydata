@@ -24,3 +24,5 @@ def yahoo_url(ticker, start_date=dt.date(2010, 1, 1), end_date=dt.date.today(), 
     root = "https://query1.finance.yahoo.com/v7/finance/download/{ticker}?period1={period1}&period2={period2}&interval={frequency}&events=history"
 
     built_url = root.format(ticker, period1, period2, frequency)
+
+    return built_url

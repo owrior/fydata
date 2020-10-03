@@ -4,7 +4,7 @@ import datetime as dt
 
 def yahoo_url(ticker, start_date=dt.date(2010, 1, 1), end_date=dt.date.today(), period=None, frequency="1d"):
     """
-
+    Function to create url string for data fetch from yahoo.
     :param ticker:
     :param start_date:
     :param end_date:

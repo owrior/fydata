@@ -131,3 +131,6 @@ dmypy.json
 # VS code
 .vscode
 
+# Conda environment
+envs 
+

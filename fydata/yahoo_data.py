@@ -25,3 +25,13 @@ def yahoo_url(ticker, start_date, end_date, period, frequency):
     built_url = root.format(ticker=ticker, period1=period1, period2=period2, frequency=frequency)
 
     return built_url
+
+def dl_yahoo(ticker, start_date=datetime.date(2010, 1, 1), end_date=datetime.date.today(), period=None, frequency="1d")
+    r = requests.get(self.url)
+    if r.ok:
+        data = r.content.decode("utf-8")
+        df = pd.read_csv(io.StringIO(data))
+        return df
+    else:
+        print("Error downloading.")
+        return 0

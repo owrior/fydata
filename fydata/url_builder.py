@@ -1,7 +1,7 @@
-import datetime as dt
+import datetime
 
 
-def yahoo_url(ticker, start_date=dt.date(2010, 1, 1), end_date=dt.date.today(), period=None, frequency="1d"):
+def yahoo_url(ticker, start_date, end_date, period, frequency):
     """
     Function to create url string for data fetch from yahoo.
     :param ticker:
@@ -11,7 +11,7 @@ def yahoo_url(ticker, start_date=dt.date(2010, 1, 1), end_date=dt.date.today(), 
     :param frequency: 1d, 1wk, 1mo
     :return:
     """
-    date_ref = dt.date(1970, 1, 1)
+    date_ref = datetime.date(1970, 1, 1)
 
     if period is None:
         period1 = int((start_date - date_ref).total_seconds())

@@ -1,5 +1,7 @@
+import io
 import datetime
-
+import requests
+import pandas as pd
 
 def yahoo_url(ticker, start_date, end_date, period, frequency):
     """
@@ -26,8 +28,8 @@ def yahoo_url(ticker, start_date, end_date, period, frequency):
 
     return built_url
 
-def dl_yahoo(ticker, start_date=datetime.date(2010, 1, 1), end_date=datetime.date.today(), period=None, frequency="1d")
-    r = requests.get(self.url)
+def dl_yahoo(ticker, start_date=datetime.date(2010, 1, 1), end_date=datetime.date.today(), period=None, frequency="1d"):
+    r = requests.get(yahoo_url(ticker, start_date, end_date, period, frequency))
     if r.ok:
         data = r.content.decode("utf-8")
         df = pd.read_csv(io.StringIO(data))

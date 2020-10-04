@@ -1,9 +1,6 @@
 import sys
 import datetime as dt
 import time
-from fydata.data_manager import DataManager
+from fydata.yahoo_data import dl_yahoo
 
-dm = DataManager("GOOG")
-dm.dl_data()
-
-print(dm.df)
+print(dl_yahoo("GOOG"))

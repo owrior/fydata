@@ -1,8 +1,8 @@
-import io
-import datetime
-import requests
-import pandas as pd
+from sqlalchemy import create_engine
 
 class SqlApi:
     def __init__(self):
-        self.db = "mysql"
+        self.engine = create_engine("mysql://fydata:money@localhost")
+        self.engine.connect()
+
+    

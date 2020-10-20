@@ -1,5 +1,6 @@
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, 
 from sqlalchemy import Table, Column, String, Integer, Date, Numeric, ForeignKey, MetaData
+from yahoo_data import dl_yahoo
 
 class SqlApi:
     def __init__(self):
@@ -29,6 +30,12 @@ class SqlApi:
         )
 
         meta.create_all(self.engine)
+
+    def update_ticker(self, ticker):
+        try:
+            conn = self.engine.connect()
+        except:
+            "Connection failed"
 
 
     

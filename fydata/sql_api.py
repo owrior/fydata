@@ -6,13 +6,9 @@ class SqlApi:
     def __init__(self):
         self.engine = create_engine("mysql://fydata:money@localhost/fypy")
 
-    def df_to_sql(self, df, table, key=None):
-        if key is None:
-            sql_statement = "INSERT INTO\n\t" + table + " (" + \
-            ",".join(df.columns) + ")\nVALUES\n"
-        else:
-            sql_statement = "INSERT INTO\n\t" + table + " (" \
-            + key + "," + ",".join(df.columns) + ")\nVALUES\n"
+    def df_to_sql(self, df, table):
+        sql_statement = "INSERT INTO\n\t" + table + " (" + \
+        ",".join(df.columns) + ")\nVALUES\n"
 
         last = df.index[-1]
         for index, row in df.iterrows():
@@ -31,14 +27,9 @@ class SqlApi:
     def init_db(self):
         meta = MetaData()
         
-        # Create the tickers table
-        tickers = Table(
-            'tickers', meta,
-            Column('ticker_key', Integer, primary_key = True),
-            Column('ticker', String(20))
-        )
-
         # Create the historic data table
+        if self.engine.dialect.has_table(self.engine, "historic"):
+            self.engine.execute("DROP TABLE historic;")
         historic = Table(
             'historic', meta,
             Column('ticker_key', Integer, ForeignKey('tickers.ticker_key')),
@@ -50,19 +41,37 @@ class SqlApi:
             Column('adj_close', Numeric),
             Column('volume', Numeric)
         )
+        
+        # Create the tickers table
+        if self.engine.dialect.has_table(self.engine, "tickers"):
+            self.engine.execute("DROP TABLE tickers;")
+        tickers = Table(
+            'tickers', meta,
+            Column('ticker_key', Integer, primary_key = True),
+            Column('ticker', String(20))
+        )
 
         meta.create_all(self.engine)
 
     def new_ticker(self, ticker):
-        res = self.engine.execute("SELECT COUNT(*) AS num FROM tickers WHERE ticker = '" + ticker + "';").fetchall()
-        if res[0][0] > 0:
+        res = self.engine.execute("SELECT COUNT(*) AS num FROM " \
+            "tickers WHERE ticker = '"+ticker+"';").fetchone()
+        if res is None:
             print("Ticker already in database.")
             return 0
-
-        historic = dl_yahoo(ticker)        
-        historic.to_csv("~/Data/historic.csv")
         
-        self.engine.execute("INSERT INTO tickers ('ticker') VALUES ('" + ticker + "');")
+        self.engine.execute("INSERT INTO tickers (ticker) "\
+             "VALUES ('" + ticker + "');")
+            
+        ticker_key = self.engine.execute("SELECT ticker_key FROM "\
+            "tickers WHERE ticker = '"+ticker+"';").fetchone()[0]
+
+        historic = dl_yahoo(ticker)
+        historic.insert(0, "ticker_key", ticker_key)
+
+        self.engine.execute(self.df_to_sql(historic, "historic"))
+
+        
 
 
     

@@ -4,12 +4,8 @@ import time
 from fydata.yahoo_data import dl_yahoo
 from fydata.sql_api import SqlApi
 
-goog = dl_yahoo("GOOG")
-print(goog.info())
-print(goog.head())
-
 sql = SqlApi()
 
-df = dl_yahoo("GOOG")
+sql.init_db()
 
-print(sql.df_to_sql(df, "historic", "ticker_key"))
+sql.new_ticker("GOOG")

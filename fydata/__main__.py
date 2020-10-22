@@ -10,4 +10,6 @@ print(goog.head())
 
 sql = SqlApi()
 
-sql.init_db()
+df = dl_yahoo("GOOG")
+
+print(sql.df_to_sql(df, "historic", "ticker_key"))

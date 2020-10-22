@@ -39,8 +39,6 @@ def dl_yahoo(ticker, start_date=datetime.date(2010, 1, 1), end_date=datetime.dat
         df.columns = df.columns.str.lower()
         df = df.rename(columns={"adj close": "adj_close"})
         
-        # Format the date column.
-        df['date'] = pd.to_datetime(df['date'], format="%Y-%m-%d")
         return df
     else:
         print("Error downloading.")

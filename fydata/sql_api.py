@@ -1,10 +1,12 @@
 from sqlalchemy import create_engine 
-from sqlalchemy import Table, Column, String, Integer, Date, Numeric, ForeignKey, MetaData
+from sqlalchemy import Table, Column, String, Integer, \
+                        Date, Numeric, ForeignKey, MetaData
 from fydata.yahoo_data import dl_yahoo
 
 class SqlApi:
     def __init__(self):
-        self.engine = create_engine("mysql://fydata:money@localhost/fypy")
+        self.engine = create_engine("mysql://fydata:money@localhost"\
+            "/fypy")
 
     def df_to_sql(self, df, table):
         sql_statement = "INSERT INTO\n\t" + table + " (" + \
@@ -32,7 +34,8 @@ class SqlApi:
             self.engine.execute("DROP TABLE historic;")
         historic = Table(
             'historic', meta,
-            Column('ticker_key', Integer, ForeignKey('tickers.ticker_key')),
+            Column('ticker_key', Integer, 
+                ForeignKey('tickers.ticker_key')),
             Column('date', Date),
             Column('open', Numeric),
             Column('high', Numeric),
@@ -70,6 +73,8 @@ class SqlApi:
         historic.insert(0, "ticker_key", ticker_key)
 
         self.engine.execute(self.df_to_sql(historic, "historic"))
+
+        print("Added", ticker)
 
         
 

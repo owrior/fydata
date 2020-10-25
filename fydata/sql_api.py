@@ -4,6 +4,8 @@ from sqlalchemy import Table, Column, String, Integer, \
 from fydata.yahoo_data import dl_yahoo
 
 class SqlApi:
+    """
+    """
     def __init__(self):
         self.engine = create_engine("mysql://fydata:money@localhost"\
             "/fypy")
@@ -24,6 +26,8 @@ class SqlApi:
                     + "),\n"
 
         return(sql_statement)
+
+        return 0
 
 
     def init_db(self):
@@ -56,10 +60,18 @@ class SqlApi:
 
         meta.create_all(self.engine)
 
+        return 0
+
     def new_ticker(self, ticker):
+        """
+        Downloads and adds data for a ticker not within db
+        currently.
+        :param ticker: The ticker denoting the stock for yahoo.
+        :return: zero
+        """
         res = self.engine.execute("SELECT COUNT(*) AS num FROM " \
             "tickers WHERE ticker = '"+ticker+"';").fetchone()
-        if res is None:
+        if res is not None:
             print("Ticker already in database.")
             return 0
         
@@ -75,6 +87,29 @@ class SqlApi:
         self.engine.execute(self.df_to_sql(historic, "historic"))
 
         print("Added", ticker)
+
+        return 0
+
+    def update_historic(self, ticker):
+        res = self.engine.execute("SELECT a.date " \
+            "FROM historic AS a " \
+            "INNER JOIN tickers AS b " \
+            "ON a.ticker_key = b.ticker_key" \
+            "WHERE b.ticker = '"+ticker+"' " \
+            "AND a.date = MAX(a.date);").fetchone()
+        if res is None:
+            print("Ticker is not currently within database. Fetching fresh.")
+            self.new_ticker(ticker)
+            return 0
+
+        last_date = res[0]
+
+        historic = dl_yahoo(ticker, start_date=last_date)
+
+        self.engine.execute(self.df_to_sql(historic, "historic"))
+
+        return 0
+
 
         
 

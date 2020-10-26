@@ -9,3 +9,5 @@ sql = SqlApi()
 sql.init_db()
 
 sql.new_ticker("GOOG")
+
+sql.update_historic("GOOG")

@@ -1,7 +1,9 @@
 from sqlalchemy import create_engine 
 from sqlalchemy import Table, Column, String, Integer, \
-                        Date, Numeric, ForeignKey, MetaData
+                        Date, Numeric, ForeignKey, MetaData, Float
 from fydata.yahoo_data import dl_yahoo
+import datetime as dt
+import pandas as pd
 
 class SqlApi:
     """
@@ -41,12 +43,12 @@ class SqlApi:
             Column('ticker_key', Integer, 
                 ForeignKey('tickers.ticker_key')),
             Column('date', Date),
-            Column('open', Numeric),
-            Column('high', Numeric),
-            Column('low', Numeric),
-            Column('close', Numeric),
-            Column('adj_close', Numeric),
-            Column('volume', Numeric)
+            Column('open', Float),
+            Column('high', Float),
+            Column('low', Float),
+            Column('close', Float),
+            Column('adj_close', Float),
+            Column('volume', Float)
         )
         
         # Create the tickers table
@@ -71,7 +73,7 @@ class SqlApi:
         """
         res = self.engine.execute("SELECT COUNT(*) AS num FROM " \
             "tickers WHERE ticker = '"+ticker+"';").fetchone()
-        if res is not None:
+        if res[0] is None:
             print("Ticker already in database.")
             return 0
         
@@ -91,20 +93,29 @@ class SqlApi:
         return 0
 
     def update_historic(self, ticker):
-        res = self.engine.execute("SELECT a.date " \
+        res = self.engine.execute("SELECT MAX(a.date) AS date " \
             "FROM historic AS a " \
             "INNER JOIN tickers AS b " \
-            "ON a.ticker_key = b.ticker_key" \
-            "WHERE b.ticker = '"+ticker+"' " \
-            "AND a.date = MAX(a.date);").fetchone()
-        if res is None:
+            "ON a.ticker_key = b.ticker_key " \
+            "WHERE b.ticker = '"+ticker+"';").fetchone()
+        if res[0] is None:
             print("Ticker is not currently within database. Fetching fresh.")
             self.new_ticker(ticker)
             return 0
 
-        last_date = res[0]
+        if res[0] is dt.date.today():
+            print("Already up to date.")
+            return 0
 
-        historic = dl_yahoo(ticker, start_date=last_date)
+        last_date = res[0] + dt.timedelta(days = 1)
+
+        print(last_date)
+
+        try: 
+            historic = dl_yahoo(ticker, last_date)
+        except:
+            print("Historic is up to date or there is no internet.")
+            return 0
 
         self.engine.execute(self.df_to_sql(historic, "historic"))
 
